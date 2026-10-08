@@ -1,0 +1,44 @@
+<!-- 
+  Operation Blue Sentinel — Custom VirusTotal Detection Rules
+  Engineer: Adewale Adejoju
+
+  These rules extend Wazuh's built-in VirusTotal integration (default rules
+  87100–87106) to raise distinct alerts based on how many vendors flag a
+  given IP, so malicious and merely-suspicious verdicts are triaged
+  differently instead of being lumped together.
+
+  Install: append this <group> block into
+  /var/ossec/etc/rules/local_rules.xml on the Wazuh Manager, then restart:
+    sudo systemctl restart wazuh-manager
+
+  Note: confirm the base rule ID you're chaining off of (if_sid) and the
+  exact field name VirusTotal populates in YOUR deployment — check with:
+    sudo /var/ossec/bin/wazuh-logtest
+  and feed it a sample VirusTotal alert JSON. 87105 (clean/malicious
+  verdict) is the standard base rule, but if your integration script
+  fires a different rule ID first, update if_sid to match.
+ -->
+<group name="virustotal,">
+<!--  100092: High-confidence malicious verdict  -->
+<rule id="100092" level="12">
+<if_sid>87105</if_sid>
+<field name="virustotal.positives">\d+</field>
+<field name="virustotal.malicious">yes</field>
+<description>VirusTotal: IP $(virustotal.source.ip) flagged as MALICIOUS ($(virustotal.positives) vendor detections)</description>
+<mitre>
+<id>T1071</id>
+</mitre>
+<group>virustotal_malicious,pci_dss_10.6.1,gdpr_IV_35.7.d,</group>
+</rule>
+<!--  100093: Lower-confidence / suspicious verdict  -->
+<rule id="100093" level="8">
+<if_sid>87105</if_sid>
+<field name="virustotal.positives">^[1-9]$|^[1-4][0-9]$</field>
+<field name="virustotal.malicious" negate="yes">yes</field>
+<description>VirusTotal: IP $(virustotal.source.ip) has SUSPICIOUS detections ($(virustotal.positives) vendor flags)</description>
+<mitre>
+<id>T1071</id>
+</mitre>
+<group>virustotal_suspicious,pci_dss_10.6.1,gdpr_IV_35.7.d,</group>
+</rule>
+</group>
