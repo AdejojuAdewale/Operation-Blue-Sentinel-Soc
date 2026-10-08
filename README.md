@@ -1,6 +1,5 @@
-# Operation-Blue-Sentinel-Soc
+# Operation-Blue-Sentinel-Soc Monitoring & Incident Response Lab
 A hands-on SOC engineering lab demonstrating real-world threat detection, threat intelligence, and incident response using Wazuh, VirusTotal, and GoPhish across Linux and Windows environments.
-# Operation Blue Sentinel — SOC Monitoring & Incident Response Lab
 
 **Engineer:** Adewale Adejoju
 **Commander/Analyst:** Terna Akin-Akinbisola
